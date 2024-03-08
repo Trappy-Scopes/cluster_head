@@ -4,8 +4,11 @@ from node import Node, NodeRoll
 
 scopes = NodeRoll()
 all_nodes = {
+          "m1": '192.168.0.194',
+          "m2": '192.168.0.180',
           "m3": '192.168.0.161',
           "m4": '192.168.0.131',
+          "m6": '192.168.0.153'
         } # directory of nodes
 
 
