@@ -1,12 +1,29 @@
-from abcs import abstractmethod
+import libtmux
 
 
-class AbstractNetDevice:
+from node import AbstractNetDevice
+
+class SSHNetDevice(AbstractNetDevice):
 
 	##1
 	@abstractmethod
 	def __init__(self, name, addr, username=None, password=None, connect=False):
-		pass
+		
+
+		self.hostname = name
+		self.username = username
+		self.password = password
+		self.addr = addr
+
+		self.server = None
+
+		# Create a new session or attach to an existing one
+		self.session_name = self.hostname
+		self.session = None
+
+		if connect:
+			self.connect(username=self.username, password=self.password)
+
 
 	##2
 	@abstractmethod
@@ -15,8 +32,17 @@ class AbstractNetDevice:
 
 	##3
 	@abstractmethod
-	def connect(self, login=None, password=None):
-		pass
+	def connect(self, username=None, password=None):
+		self.session = self.server.find_where({'session_name': session_name})
+		
+		# Attach to the session
+		#if self.session:
+		self.server = libtmux.Server(hostname=self.hostname, 
+									 user=self.username, 
+									 ssh_password=self.password)
+		self.session.attach_session()
+		#else:
+		#print("Couldn't find session!")
 
 	##4
 	@abstractmethod
@@ -26,7 +52,10 @@ class AbstractNetDevice:
 	##5
 	@abstractmethod
 	def is_connected(self):
-		pass
+		if self.server:
+			return self.server.has_session
+		else:
+			return False
 
 	##6
 	@abstractmethod

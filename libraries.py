@@ -1,0 +1,1 @@
+pythonic = ["https://github.com/micropython/webrepl.git"]
