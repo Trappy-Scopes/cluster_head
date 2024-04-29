@@ -2,7 +2,35 @@
 
 
 
-A `cluster-head`  is a terminal that is used to requisition a collecion of autonomous devices. This collection of devices is called a `Hive` of devices. Formally, a `Hive` is a collection of `Node`objects that are specialised to their respective network connection protocols and shell types. 
+A `cluster-head`  is a terminal that is used to requisition a collecion of autonomous devices. This collection of devices is called a `Hive` of devices. By devination, a `Hive` is a collection of `Node`objects that are specialised to their respective network connection protocols and shell types. 
+
+The `Hive` then hosts a distribution network, the network allows the following semantics:
+
+```mermaid
+graph LR
+	subgraph Hive1
+		M1
+		M2
+		M3
+		M4
+	end
+```
+
+```python
+## Assigns the microscopes to hive1 on the current host - creates a lock object on all the microscopes.
+hive1 = Hive(["m1", "m2", "m3", "m4"])
+
+hive1.m1.set_task("Pump Calibration", script="scripts/pumptests/arbitrart_time_calib.py")
+hive1.m2.set_task("Light Calibration", script="scripts/lighttests/test2.py")
+hive1.m3.set_task("Long term experiment 1", script="scripts/exps/exp2.py")
+hive1.m4.set_task("Long term experiment 2", script="scripts/exps/exp2.py")
+
+aux = AuxHive() # All availble microscopes that are not assigned to another hive.
+```
+
+
+
+
 
 
 

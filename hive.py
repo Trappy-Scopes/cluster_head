@@ -1,40 +1,93 @@
-from colorama import Fore
+import ipaddress
 
 
+from rich import print
+from rich.panel import Panel
+
+
+from node import Node
 
 class Hive:
 	"""
-	Creates a roll of devices and optionally emits them in the global space.
+	Creates a collection of devices and optionally emits them in the global space.
 	"""
 
-	def __init__(self):
+	def __init__(self, name, nodelist):
 		"""
 		initaliser. Trivial.
 	
 		Two kinds of devices:
-			|- Rpi - Linux systems -- SSH (parmiko/libmux)
-			|- RPi pico device - Micropython subsystem - webrepl - 
+			|- Linux systems -- SSH (parmiko/libmux)
+			|- Micropython device - Micropython subsystem - webrepl - 
 
 		"""
-		self.devlist = {}
-		self.roll = {}
+		self.name = name
 
 		self.all_devices = yaml.load("all_devices_iplist.yaml")
+		self.inv_map = {v: k for k, v in self.all_devices.items()}
+		
+		self.requested = nodelist
+		self.nodes = {}
+		self.rejected = []
 
-	def assemble(device_list):
+
+		self.assemble()
+
+	def assemble():
 		"""
-		Assembles the given set of ip addresses into Node devices.
+		Assembles the given set of devices into Node devices.
 		"""
-		for device in device_list:
-			if device in self.all_devices:
-				self.roll[device] = Node(device, all_devices_iplist[device])
+		for device in self.requested:
+
+			# Resolve device name and ip address
+			if ipaddress.ip_address(device):
+				ip = device
+				device = self.inv_map[device]
 			else:
-				print(f"{Fore.RED}Device not found: {device}!{Fore.RESET}")
-		print(f"{Fore.BLUE} Total device init: {len(self.roll)} .")
+				ip = self.all_devices[device]
+
+			# Attempt lock
+			hlock, node = self.hivelock(device, ip)
+			if hlock == True:
+				self.nodes[device] = node
+				print(f"[red]Hive {self.name}[default]: Node acquired: [cyan]{device} :: {ip} !")
+			else:
+				print(f"[red]Hive {self.name}[default]: [red]Node request rejected: [cyan]{device} :: {ip} !")
+				self.rejected.append(device)
+
+			print(Panel(f"{len(self.nodes)}/{len(self.requested)}", title=f"Hive `{self.name}` Quorum"), align="center")
+
+	
+	def hivelock(device, ip, force=False):
+
+		## Assume linux device for now : TODO - specialise for micropython device.
+		node = Node(device, ip, password="trappyscope", connect=True)
+		acq = True
+		if node.is_connected():
+
+			## Force
+			if force:
+				node.exec("rm .hivelock")
+
+			## 
+			response = node.exec("ls .hivelock")
+			if not "No such file or directory" in response:
+				acq = False
+		else:
+			print(f"Hive.hivelock: [red] {device} Node connection failure!")
+			acq = False
+
+		if acq:
+			return True, node
+		else:
+			node.disconnect()
+			return False, None
+
+
 
 	def emit_devices(self):
 		"""
 		Adds all available devices to the global variables.
 		"""
-		for device in self.roll:
-			golbals()[device] = self.roll[device]
+		for device in self.nodes:
+			golbals()[device] = self.nodes[device]

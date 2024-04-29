@@ -1,8 +1,9 @@
 import paramiko
-from node import Node, NodeRoll
+from linuxnode import Node, NodeRoll
 # List of Raspberry Pi IP addresses
 
 scopes = NodeRoll()
+"""
 all_nodes = {
           "m1": '192.168.0.194',
           "m2": '192.168.0.180',
@@ -10,7 +11,9 @@ all_nodes = {
           "m4": '192.168.0.131',
           "m6": '192.168.0.153'
         } # directory of nodes
+"""
 
+all_nodes = {"nitro": "192.168.1.88"}
 
 
 ## Get the nodes up and running
@@ -18,7 +21,7 @@ def assemble(all_nodes):
   for scope in all_nodes:
     addr = f"{all_nodes[scope]}"
     #exec(f"{scope} = Node({scope}, {addr}, 'chlamy')", globals())
-    scopes.roll[scope] = Node(scope, all_nodes[scope], 'chlamy')
+    scopes.roll[scope] = Node(scope, all_nodes[scope], username="dextor", password="2351997")
 
 
 
@@ -66,6 +69,7 @@ def update_cluster():
 #         execute_command_on_node(node, 'pi', f'scp -r {local_app_directory} pi@{node}:{remote_app_directory}')
 
 # Add more functions based on your specific needs
+
 
 if __name__ == "__main__":
     assemble(all_nodes)

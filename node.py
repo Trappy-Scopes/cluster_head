@@ -1,4 +1,4 @@
-from abcs import abstractmethod
+from abc import abstractmethod
 
 
 class AbstractNetDevice:

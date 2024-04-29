@@ -10,7 +10,7 @@ class Node:
 	Represents a node device that can execute commands remotely.
 	"""
 
-	def __init__(self, name, ip, password="trappyscope", connect=True):
+	def __init__(self, name, ip, username="trappyscope", password="trappyscope", connect=True):
 
 		self.ssh = paramiko.SSHClient()
 		self.username = "trappyscope"
